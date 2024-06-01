@@ -55,6 +55,10 @@ public enum NPCType {
     ZOMBIE(CacheRegistry.ENTITY_ZOMBIE_CLASS, 0, "setBaby"),
     WOLF(CacheRegistry.ENTITY_WOLF_CLASS, -1, "setSitting", "setTamed", "setAngry", "setAge", "setCollarColor"),
     FOX(CacheRegistry.ENTITY_FOX_CLASS, -1, "setFoxType", "setSitting", "setSleeping", "setAge", "setCrouching"),
+    VINDICATOR(CacheRegistry.ENTITY_VINDICATOR_CLASS, 0),
+    EVOKER(CacheRegistry.ENTITY_EVOKER_CLASS, 0),
+    PILLAGER(CacheRegistry.ENTITY_PILLAGER_CLASS, 0),
+    ILLUSIONER(CacheRegistry.ENTITY_ILLUSIONER_CLASS, 0),
 
     // v1.17+
     BEE(CacheRegistry.ENTITY_BEE_CLASS, -1, "setAnger", "setHasNectar", "setHasStung"),
