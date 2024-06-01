@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
@@ -220,24 +221,55 @@ public interface TypeCache {
         boolean hasExpectedType = (this.cacheBuilder.expectType != null);
         if (methods.isEmpty() && hasExpectedType)
           for (Method method : this.BUILDER_CLASS.getDeclaredMethods()) {
-            if (method.getReturnType() == this.cacheBuilder.expectType)
-              return method; 
+            method.setAccessible(true);
+
+            if (!Iterables.isEmpty(this.cacheBuilder.parameterTypes)) {
+              if (method.getName().equals("valueOf")) continue;
+
+              boolean parametersMatch = false;
+              for (Class<?>[] expectedParameterTypes : this.cacheBuilder.parameterTypes) {
+                Class<?>[] actualParameterTypes;
+
+                if (expectedParameterTypes.length != (actualParameterTypes = method.getParameterTypes()).length) continue;
+
+                boolean allMatch = true;
+                for (int i = 0; i < expectedParameterTypes.length; ++i) {
+                  if (expectedParameterTypes[i].equals(actualParameterTypes[i])) continue;
+                  allMatch = false;
+                  break;
+                }
+
+                if (!allMatch) continue;
+                parametersMatch = true;
+
+                break;
+              }
+
+              if (!parametersMatch) continue;
+            }
+
+            if (this.cacheBuilder.expectType == UUID.class && method.getName().equalsIgnoreCase("getOriginWorld") || method.getReturnType() != this.cacheBuilder.expectType) continue;
+            return method;
           }  
         for (String methodName : this.cacheBuilder.methods) {
           try {
             Method maybeGet;
+
             if (!Iterables.isEmpty(this.cacheBuilder.parameterTypes)) {
-              maybeGet = this.BUILDER_CLASS.getDeclaredMethod(methodName, Iterables.get(this.cacheBuilder.parameterTypes, 0));
+              maybeGet = this.BUILDER_CLASS.getMethod(methodName, Iterables.get(this.cacheBuilder.parameterTypes, 0));
             } else {
-              maybeGet = this.BUILDER_CLASS.getDeclaredMethod(methodName);
-            } 
+              maybeGet = this.BUILDER_CLASS.getMethod(methodName);
+            }
+
             if (this.cacheBuilder.expectType != null && this.cacheBuilder.expectType != maybeGet.getReturnType())
-              continue; 
+              continue;
+
             maybeGet.setAccessible(true);
-            methodThis = maybeGet;
+            return maybeGet;
           } catch (NoSuchMethodException noSuchMethodException) {}
-        } 
-        return methodThis;
+        }
+
+        return null;
       }
     }
     
@@ -247,13 +279,18 @@ public interface TypeCache {
       }
       
       protected Field onLoad() throws NoSuchFieldException {
-        if (this.cacheBuilder.expectType != null)
-          for (Field field1 : this.BUILDER_CLASS.getDeclaredFields()) {
-            if (field1.getType() == this.cacheBuilder.expectType) {
-              field1.setAccessible(true);
-              return field1;
-            } 
-          }  
+        if (this.cacheBuilder.expectType != null) {
+          for (Class<?> currentClass = this.BUILDER_CLASS; currentClass != null; currentClass = currentClass.getSuperclass()) {
+            for (Field field : currentClass.getDeclaredFields()) {
+              if (field.getType() != this.cacheBuilder.expectType) continue;
+              field.setAccessible(true);
+              return field;
+            }
+          }
+        }
+
+        if (this.BUILDER_CLASS == null) return null;
+
         Field field = this.BUILDER_CLASS.getDeclaredField(this.cacheBuilder.fieldName);
         field.setAccessible(true);
         return field;
