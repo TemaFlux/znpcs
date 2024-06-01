@@ -2,6 +2,7 @@ package io.github.gonalez.znpcs;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.github.gonalez.znpcs.commands.Command;
 import io.github.gonalez.znpcs.commands.list.DefaultCommand;
 import io.github.gonalez.znpcs.configuration.Configuration;
 import io.github.gonalez.znpcs.configuration.ConfigurationConstants;
@@ -32,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.logging.Level;
 
@@ -76,6 +78,7 @@ public class ServersNPC extends JavaPlugin {
   }
 
   @Override public void onDisable() {
+    Command.unregisterAll();
     Configuration.SAVE_CONFIGURATIONS.forEach(Configuration::save);
     Bukkit.getOnlinePlayers().forEach(ZUser::unregister);
   }
@@ -112,7 +115,7 @@ public class ServersNPC extends JavaPlugin {
     if (find != null) return find;
     NPCModel pojo =
         (new NPCModel(id))
-            .withHologramLines(Collections.singletonList(name))
+            .withHologramLines(new ArrayList<>(Collections.singletonList(name)))
             .withLocation(new ZLocation(location))
             .withNpcType(npcType);
     ConfigurationConstants.NPC_LIST.add(pojo);

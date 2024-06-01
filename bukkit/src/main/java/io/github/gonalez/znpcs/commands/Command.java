@@ -7,17 +7,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.command.defaults.BukkitCommand;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class Command extends BukkitCommand {
   private static final String WHITESPACE = " ";
-  
+
+  private static Set<Command> registered;
   private static final CommandMap COMMAND_MAP;
   
   private final Map<CommandInformation, CommandInvoker> subCommands;
@@ -29,6 +29,22 @@ public class Command extends BukkitCommand {
       throw new IllegalStateException("can't access bukkit command map.");
     } 
   }
+
+  public static void unregisterAll() {
+    try {
+      if (registered != null) {
+        for (Command command : registered) {
+          try {
+            command.unload();
+          } catch (Throwable e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    } catch (Throwable e) { // can be concurrent problem
+      e.printStackTrace();
+    }
+  }
   
   public Command(String name) {
     super(name);
@@ -38,12 +54,35 @@ public class Command extends BukkitCommand {
   
   private void load() {
     COMMAND_MAP.register(getName(), this);
+
     for (Method method : getClass().getMethods()) {
       if (method.isAnnotationPresent(CommandInformation.class)) {
         CommandInformation cmdInfo = method.getAnnotation(CommandInformation.class);
         this.subCommands.put(cmdInfo, new CommandInvoker(this, method, cmdInfo.permission()));
-      } 
-    } 
+      }
+    }
+
+    if (registered == null) registered = new HashSet<>();
+    registered.add(this);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void unload() {
+    try {
+      Field knownCommandsField; try {
+        knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+      } catch (Throwable ignored) {
+        knownCommandsField = SimpleCommandMap.class.getField("knownCommands");
+      }
+
+      knownCommandsField.setAccessible(true);
+      Map<String, BukkitCommand> knownCommands = (Map<String, BukkitCommand>) knownCommandsField.get(COMMAND_MAP);
+      knownCommands.remove(getName());
+
+      if (registered != null) registered.remove(this);
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
   }
   
   public Set<CommandInformation> getCommands() {
