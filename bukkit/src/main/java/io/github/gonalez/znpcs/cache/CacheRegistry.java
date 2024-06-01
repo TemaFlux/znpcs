@@ -311,22 +311,22 @@ public final class CacheRegistry {
 
   public static final Class<?> ENTITY_VINDICATOR_CLASS = (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       .withCategory(CacheCategory.ENTITY)
-      .withAdditionalData("npc")
+      .withAdditionalData("monster")
       .withClassName("EntityVindicator"))).load();
 
   public static final Class<?> ENTITY_EVOKER_CLASS = (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       .withCategory(CacheCategory.ENTITY)
-      .withAdditionalData("npc")
+      .withAdditionalData("monster")
       .withClassName("EntityEvoker"))).load();
 
   public static final Class<?> ENTITY_PILLAGER_CLASS = (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       .withCategory(CacheCategory.ENTITY)
-      .withAdditionalData("npc")
+      .withAdditionalData("monster")
       .withClassName("EntityPillager"))).load();
 
   public static final Class<?> ENTITY_ILLUSIONER_CLASS = (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       .withCategory(CacheCategory.ENTITY)
-      .withAdditionalData("npc")
+      .withAdditionalData("monster")
       .withClassName("EntityIllusioner"))).load();
 
   public static final Class<?> ENTITY_TYPES_CLASS = (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
