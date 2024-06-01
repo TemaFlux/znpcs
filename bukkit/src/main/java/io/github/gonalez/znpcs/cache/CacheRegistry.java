@@ -653,14 +653,14 @@ public final class CacheRegistry {
       .withCategory(CacheCategory.ENTITY)
       .withClassName(ENTITY_HUMAN_CLASS)
       .withExpectResult(GameProfile.class));
-  
+
   public static final TypeCache.BaseCache<Method> GET_ENTITY_ID = new TypeCache.BaseCache.MethodLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
       .withCategory(CacheCategory.PACKET)
       .withClassName(ENTITY_CLASS)
       .withMethodName("getId")
-      .withMethodName("ae")
       .withMethodName("ah")
+      .withMethodName("ae")
       .withMethodName("af")
       .withMethodName("aj")
       .withExpectResult(int.class));
@@ -685,8 +685,8 @@ public final class CacheRegistry {
       .withCategory(CacheCategory.PACKET)
       .withClassName(PLAYER_CONNECTION_CLASS)
       .withMethodName("sendPacket")
-      .withMethodName("a")
       .withMethodName("b")
+      .withMethodName("a")
       .withParameterTypes(PACKET_CLASS));
   
   public static final TypeCache.BaseCache<Method> SET_CUSTOM_NAME_OLD_METHOD = new TypeCache.BaseCache.MethodLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
@@ -701,8 +701,8 @@ public final class CacheRegistry {
       .withCategory(CacheCategory.PACKET)
       .withClassName(ENTITY_CLASS)
       .withMethodName("setCustomName")
-      .withMethodName("a")
       .withMethodName("b")
+      .withMethodName("a")
       .withParameterTypes(I_CHAT_BASE_COMPONENT).withExpectResult(void.class));
   
   public static final TypeCache.BaseCache<Method> SET_CUSTOM_NAME_VISIBLE_METHOD = new TypeCache.BaseCache.MethodLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
