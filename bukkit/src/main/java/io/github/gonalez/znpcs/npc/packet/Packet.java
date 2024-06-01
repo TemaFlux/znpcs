@@ -68,8 +68,8 @@ public interface Packet {
   @PacketValue(keyName = "scoreboardPackets")
   default ImmutableList<Object> updateScoreboard(NPC npc) throws ReflectiveOperationException {
     ImmutableList.Builder<Object> builder = ImmutableList.builder();
-    boolean isVersion17 = (Utils.BUKKIT_VERSION > 16);
-    boolean isVersion9 = (Utils.BUKKIT_VERSION > 8);
+    boolean isVersion17 = Utils.isVersionNew(17);
+    boolean isVersion9 = Utils.isVersionNew(9);
     Object scoreboardTeamPacket = isVersion17 ? CacheRegistry.SCOREBOARD_TEAM_CONSTRUCTOR.load().newInstance(null, npc.getGameProfile().getName()) : CacheRegistry.PACKET_PLAY_OUT_SCOREBOARD_TEAM_CONSTRUCTOR_OLD.load().newInstance();
     if (!isVersion17) {
       Utils.setValue(scoreboardTeamPacket, "a", npc.getGameProfile().getName());
@@ -78,10 +78,14 @@ public interface Packet {
     builder.add(isVersion17 ? CacheRegistry.PACKET_PLAY_OUT_SCOREBOARD_TEAM_CREATE_V1.load().invoke(null, scoreboardTeamPacket) : scoreboardTeamPacket);
     if (isVersion17) {
       scoreboardTeamPacket = CacheRegistry.SCOREBOARD_TEAM_CONSTRUCTOR.load().newInstance(null, npc.getGameProfile().getName());
-      if (Utils.BUKKIT_VERSION > 17) {
+      if (Utils.isVersionNew(18)) {
         Utils.setValue(scoreboardTeamPacket, "d", npc.getGameProfile().getName());
         ReflectionUtils.findFieldForClassAndSet(scoreboardTeamPacket, CacheRegistry.ENUM_TAG_VISIBILITY, CacheRegistry.ENUM_TAG_VISIBILITY_NEVER_FIELD.load());
-        Utils.setValue(scoreboardTeamPacket, "m", CacheRegistry.ENUM_CHAT_FORMAT_FIND.load().invoke(null, "DARK_GRAY"));
+        try {
+          Utils.setValue(scoreboardTeamPacket, "m", CacheRegistry.ENUM_CHAT_FORMAT_FIND.load().invoke(null, "DARK_GRAY"));
+        } catch (Throwable exception) {
+          Utils.setValue(scoreboardTeamPacket, "m", CacheRegistry.ENUM_CHAT_FORMAT_FIND.load().invoke(null, "darkgray"));
+        }
       } else {
         Utils.setValue(scoreboardTeamPacket, "e", npc.getGameProfile().getName());
         Utils.setValue(scoreboardTeamPacket, "l", CacheRegistry.ENUM_TAG_VISIBILITY_NEVER_FIELD.load());

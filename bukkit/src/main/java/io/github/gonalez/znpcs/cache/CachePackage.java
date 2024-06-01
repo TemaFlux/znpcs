@@ -12,7 +12,7 @@ public enum CachePackage {
   CachePackage(String packageName) {
     this
       
-      .fixedPackageName = Utils.versionNewer(17) ? packageName : (packageName + (packageName.contains("minecraft") ? (".server." + Utils.getBukkitPackage()) : ""));
+      .fixedPackageName = Utils.isVersionNew(17) ? packageName : (packageName + (packageName.contains("minecraft") ? (".server." + Utils.getBukkitPackage()) : ""));
   }
   
   CachePackage() {
@@ -20,7 +20,7 @@ public enum CachePackage {
   }
   
   public String getForCategory(CacheCategory packetCategory, String extra) {
-    return Utils.versionNewer(17) ? (
+    return Utils.isVersionNew(17) ? (
       packetCategory.getPackageName() + ((extra.length() > 0) ? ("." + extra) : "")) : 
       this.fixedPackageName;
   }

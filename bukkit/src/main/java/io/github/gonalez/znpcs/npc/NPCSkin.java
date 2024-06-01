@@ -60,7 +60,7 @@ public class NPCSkin {
     static int findLayerByVersion() {
       int value = V8.layerValue;
       for (SkinLayerValues skinLayerValue : values()) {
-        if (Utils.BUKKIT_VERSION >= skinLayerValue.minVersion)
+        if (Utils.isVersionNew(skinLayerValue.minVersion))
           value = skinLayerValue.layerValue; 
       } 
       return value;

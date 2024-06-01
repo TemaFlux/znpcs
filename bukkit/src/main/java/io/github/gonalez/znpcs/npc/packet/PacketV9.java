@@ -30,7 +30,7 @@ public class PacketV9 extends PacketV8 {
   
   public void updateGlowPacket(NPC npc, Object packet) throws ReflectiveOperationException {
     Object enumChatString = CacheRegistry.ENUM_CHAT_TO_STRING_METHOD.load().invoke(npc.getGlowColor());
-    if (Utils.BUKKIT_VERSION > 12) {
+    if (Utils.isVersionNew(13)) {
       Utils.setValue(packet, npc.getGlowColor(), CacheRegistry.ENUM_CHAT_CLASS);
       Utils.setValue(packet, "c", CacheRegistry.I_CHAT_BASE_COMPONENT_A_CONSTRUCTOR.load().newInstance(enumChatString));
     } else {

@@ -16,6 +16,9 @@ import io.github.gonalez.znpcs.utility.location.ZLocation;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -77,8 +80,8 @@ public class NPC {
   public void onLoad() {
     if (NPC_MAP.containsKey(getNpcPojo().getId()))
       throw new IllegalStateException("npc with id " + getNpcPojo().getId() + " already exists."); 
-    this.gameProfile = new GameProfile(UUID.randomUUID(), "[ZNPC] " + this.npcName);
-    this.gameProfile.getProperties().put("textures", new Property("textures", this.npcPojo.getSkin(), this.npcPojo.getSignature()));
+    this.gameProfile = new GameProfile(UUID.randomUUID(), START_PREFIX + this.npcName);
+    this.gameProfile.getProperties().put(PROFILE_TEXTURES, new Property(PROFILE_TEXTURES, this.npcPojo.getSkin(), this.npcPojo.getSignature()));
     changeType(this.npcPojo.getNpcType());
     updateProfile(this.gameProfile.getProperties());
     setLocation(getNpcPojo().getLocation().bukkitLocation(), false);
@@ -158,7 +161,7 @@ public class NPC {
     this.npcPojo.setSkin(skinFetch.getTexture());
     this.npcPojo.setSignature(skinFetch.getSignature());
     this.gameProfile.getProperties().clear();
-    this.gameProfile.getProperties().put("textures", new Property("textures",
+    this.gameProfile.getProperties().put(PROFILE_TEXTURES, new Property(PROFILE_TEXTURES,
         this.npcPojo.getSkin(), this.npcPojo.getSignature()));
     updateProfile(this.gameProfile.getProperties());
     deleteViewers();
@@ -167,7 +170,7 @@ public class NPC {
   public void setSecondLayerSkin() {
     try {
       Object dataWatcherObject = CacheRegistry.GET_DATA_WATCHER_METHOD.load().invoke(nmsEntity);
-      if (Utils.versionNewer(9)) {
+      if (Utils.isVersionNew(9)) {
         CacheRegistry.SET_DATA_WATCHER_METHOD.load().invoke(dataWatcherObject,
             CacheRegistry.DATA_WATCHER_OBJECT_CONSTRUCTOR.load().newInstance(npcSkin.getLayerIndex(),
                 CacheRegistry.DATA_WATCHER_REGISTER_FIELD.load()), (byte) 127);
@@ -182,28 +185,66 @@ public class NPC {
     try {
       Object nmsWorld = CacheRegistry.GET_HANDLE_WORLD_METHOD.load().invoke(getLocation().getWorld());
       boolean isPlayer = (npcType == NPCType.PLAYER);
-      this.nmsEntity = isPlayer ? this.packets.getProxyInstance().getPlayerPacket(nmsWorld, this.gameProfile) : (Utils.versionNewer(14) ? npcType.getConstructor().newInstance(npcType.getNmsEntityType(), nmsWorld) : npcType.getConstructor().newInstance(nmsWorld));
+      this.nmsEntity = isPlayer ? this.packets.getProxyInstance().getPlayerPacket(nmsWorld, this.gameProfile) : (Utils.isVersionNew(14) ? npcType.getConstructor().newInstance(npcType.getNmsEntityType(), nmsWorld) : npcType.getConstructor().newInstance(nmsWorld));
       this.bukkitEntity = CacheRegistry.GET_BUKKIT_ENTITY_METHOD.load().invoke(this.nmsEntity);
       this.uuid = (UUID) CacheRegistry.GET_UNIQUE_ID_METHOD.load().invoke(this.nmsEntity);
       if (isPlayer) {
         try {
           this.tabConstructor = CacheRegistry.PACKET_PLAY_OUT_PLAYER_INFO_CONSTRUCTOR.load().newInstance(CacheRegistry.ADD_PLAYER_FIELD.load(), Collections.singletonList(this.nmsEntity));
         } catch (Throwable e) {
-          this.tabConstructor = CacheRegistry.PACKET_PLAY_OUT_PLAYER_INFO_CONSTRUCTOR.load().newInstance(CacheRegistry.ADD_PLAYER_FIELD.load(), nmsEntity);
-          this.updateTabConstructor = CacheRegistry.PACKET_PLAY_OUT_PLAYER_INFO_CONSTRUCTOR.load().newInstance(CacheRegistry.UPDATE_LISTED_FIELD.load(), nmsEntity);
+          try {
+            this.tabConstructor = CacheRegistry.PACKET_PLAY_OUT_PLAYER_INFO_CONSTRUCTOR.load().newInstance(CacheRegistry.ADD_PLAYER_FIELD.load(), this.nmsEntity);
+            this.updateTabConstructor = CacheRegistry.PACKET_PLAY_OUT_PLAYER_INFO_CONSTRUCTOR.load().newInstance(CacheRegistry.UPDATE_LISTED_FIELD.load(), this.nmsEntity);
+          } catch (Throwable exception) {
+            this.tabConstructor = CacheRegistry.PACKET_PLAY_OUT_PLAYER_INFO_CONSTRUCTOR_V2.load().newInstance(CacheRegistry.ADD_PLAYER_FIELD.load(), CacheRegistry.UPDATE_LISTED_FIELD.load(), Collections.emptyList());
+            CacheRegistry.PACKET_PLAY_OUT_INFO_LIST.load().set(this.tabConstructor, Collections.singletonList(NPC.createClientboundPlayerInfoUpdatePacket(this.uuid, this.gameProfile, true, 0, null, null)));
+          }
         }
         setSecondLayerSkin();
       }
       this.npcPojo.setNpcType(npcType);
       setLocation(getLocation(), false);
       this.packets.flushCache("spawnPacket", "removeTab");
-      this.entityID = (Integer) CacheRegistry.GET_ENTITY_ID.load().invoke(this.nmsEntity);
+      Method getEntityId = CacheRegistry.GET_ENTITY_ID.load();
+      this.entityID = getEntityId == null || nmsEntity == null ? -1 : (Integer) getEntityId.invoke(this.nmsEntity);
       FunctionFactory.findFunctionsForNpc(this).forEach(function -> function.resolve(this));
       getPackets().getProxyInstance().update(this.packets);
       hologram.createHologram();
-    } catch (ReflectiveOperationException operationException) {
-      throw new UnexpectedCallException(operationException);
+    } catch (Throwable e) {
+      throw new UnexpectedCallException(e);
     } 
+  }
+
+  private static Object createClientboundPlayerInfoUpdatePacket(UUID uuid, Object gameProfile, boolean c, int d, Object f, Object g) throws Exception {
+    Class<?> packetClass = CacheRegistry.PACKET_PLAY_OUT_PLAYER_INFO_ENTRY_CLASS;
+    Constructor<?> constructor = packetClass.getDeclaredConstructor(UUID.class);
+    constructor.setAccessible(true);
+    Object packet = constructor.newInstance(uuid);
+
+    for (Field field : packetClass.getDeclaredFields()) {
+      field.setAccessible(true);
+      switch (field.getName()) {
+        case "b":
+          field.set(packet, gameProfile);
+          break;
+        case "c":
+          field.setBoolean(packet, c);
+          break;
+        case "d":
+          field.setInt(packet, d);
+          break;
+        case "f":
+          field.set(packet, f);
+          break;
+        case "g":
+          field.set(packet, g);
+          break;
+      }
+    }
+
+    Method method = packetClass.getDeclaredMethod("a");
+    method.setAccessible(true);
+    return method.invoke(packet);
   }
   
   public synchronized void spawn(ZUser user) {
@@ -232,7 +273,7 @@ public class NPC {
         ServersNPC.SCHEDULER.scheduleSyncDelayedTask(() -> Utils.sendPackets(user,
             removeTabPacket, updateTabConstructor), 60);
       } 
-    } catch (ReflectiveOperationException operationException) {
+    } catch (Throwable operationException) {
       delete(user);
       throw new UnexpectedCallException(operationException);
     } 
@@ -287,9 +328,7 @@ public class NPC {
         Utils.sendPackets(user, metaData);
       } 
     } catch (ReflectiveOperationException operationException) {
-      operationException.getCause().printStackTrace();
-
-      operationException.printStackTrace();
+      throw new UnexpectedCallException(operationException);
     } 
   }
   

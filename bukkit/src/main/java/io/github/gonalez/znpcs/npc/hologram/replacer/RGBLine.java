@@ -38,6 +38,6 @@ public class RGBLine implements LineReplacer {
   }
   
   public boolean isSupported() {
-    return (Utils.BUKKIT_VERSION > 15);
+    return Utils.isVersionNew(16);
   }
 }

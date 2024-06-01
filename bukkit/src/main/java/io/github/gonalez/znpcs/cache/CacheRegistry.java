@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -413,6 +414,12 @@ public final class CacheRegistry {
           .withClassName("ClientboundPlayerInfoUpdatePacket")))
           .load();
 
+  public static final Class<?> PACKET_PLAY_OUT_PLAYER_INFO_ENTRY_CLASS =
+      new TypeCache.BaseCache.ClazzLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+        .withCategory(CacheCategory.PACKET)
+        .withClassName("ClientboundPlayerInfoUpdatePacket$c"))
+        .load();
+
   public static final Class<?> PACKET_PLAY_OUT_PLAYER_INFO_REMOVE_CLASS =
       (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
           .withCategory(CacheCategory.PACKET)
@@ -428,7 +435,28 @@ public final class CacheRegistry {
       
       .withCategory(CacheCategory.PACKET)
       .withClassName("PacketPlayOutEntityDestroy"))).load();
-  
+
+  public static final Class<?> ENTITY_ALLAY_CLASS = new TypeCache.BaseCache.ClazzLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.ENTITY)
+      .withAdditionalData("animal.allay").withClassName("Allay")).load();
+
+  public static final Class<?> ENTITY_CAMEL_CLASS = new TypeCache.BaseCache.ClazzLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.ENTITY)
+      .withAdditionalData("animal.camel").withClassName("Camel")).load();
+
+  public static final Class<?> ENTITY_PIGLIN_CLASS = new TypeCache.BaseCache.ClazzLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.ENTITY)
+      .withAdditionalData("monster.piglin").withClassName("EntityPiglin")).load();
+
+  public static final Class<?> ENTITY_HOGLIN_CLASS = new TypeCache.BaseCache.ClazzLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.ENTITY)
+      .withAdditionalData("monster.hoglin").withClassName("EntityHoglin")).load();
+
+  public static final Class<?> ENTITY_FROG_CLASS = new TypeCache.BaseCache.ClazzLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.ENTITY)
+      .withAdditionalData("animal.frog")
+      .withClassName("Frog  ")).load();
+
   public static final Class<?> SCOREBOARD_CLASS = (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
       .withCategory(CacheCategory.WORLD_SCORES)
@@ -452,7 +480,11 @@ public final class CacheRegistry {
       
       .withCategory(CacheCategory.WORLD_ENTITY_PLAYER)
       .withClassName("ProfilePublicKey"))).load();
-  
+
+  public static final Class<?> CLIENT_INFORMATION_CLASS = new TypeCache.BaseCache.ClazzLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.SERVER_LEVEL)
+      .withClassName("ClientInformation")).load();
+
   public static final TypeCache.BaseCache<Constructor<?>> SCOREBOARD_TEAM_CONSTRUCTOR = new TypeCache.BaseCache.ConstructorLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
       .withCategory(CacheCategory.PACKET)
@@ -483,12 +515,22 @@ public final class CacheRegistry {
       .withClassName(ENTITY_PLAYER_CLASS)
       .withParameterTypes(MINECRAFT_SERVER_CLASS, WORLD_SERVER_CLASS, GameProfile.class));
 
+  public static final TypeCache.BaseCache<Constructor<?>> PLAYER_CONSTRUCTOR_NEW_3 = new TypeCache.BaseCache.ConstructorLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.PACKET)
+      .withClassName(ENTITY_PLAYER_CLASS)
+      .withParameterTypes(MINECRAFT_SERVER_CLASS, WORLD_SERVER_CLASS, GameProfile.class, CLIENT_INFORMATION_CLASS));
+
   public static final TypeCache.BaseCache<Constructor<?>> PACKET_PLAY_OUT_PLAYER_INFO_CONSTRUCTOR = new TypeCache.BaseCache.ConstructorLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
       .withCategory(CacheCategory.PACKET)
       .withClassName(PACKET_PLAY_OUT_PLAYER_INFO_CLASS)
-      .withParameterTypes(ENUM_PLAYER_INFO_CLASS, (Utils.BUKKIT_VERSION > 16) ? Collection.class : Iterable.class)
+      .withParameterTypes(ENUM_PLAYER_INFO_CLASS, Utils.isVersionNew(17) ? Collection.class : Iterable.class)
       .withParameterTypes(ENUM_PLAYER_INFO_CLASS, ENTITY_PLAYER_CLASS));
+
+  public static final TypeCache.BaseCache<Constructor<?>> PACKET_PLAY_OUT_PLAYER_INFO_CONSTRUCTOR_V2 = new TypeCache.BaseCache.ConstructorLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.PACKET)
+      .withClassName(PACKET_PLAY_OUT_PLAYER_INFO_CLASS)
+      .withParameterTypes(EnumSet.class, Collection.class));
 
   public static final TypeCache.BaseCache<Constructor<?>> PACKET_PLAY_OUT_PLAYER_INFO_REMOVE_CONSTRUCTOR =
       new TypeCache.BaseCache.ConstructorLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
@@ -620,6 +662,7 @@ public final class CacheRegistry {
       .withMethodName("ae")
       .withMethodName("ah")
       .withMethodName("af")
+      .withMethodName("aj")
       .withExpectResult(int.class));
   
   public static final TypeCache.BaseCache<Method> GET_HANDLE_PLAYER_METHOD = new TypeCache.BaseCache.MethodLoader((new TypeCache.CacheBuilder(CachePackage.CRAFT_BUKKIT))
@@ -641,7 +684,9 @@ public final class CacheRegistry {
       
       .withCategory(CacheCategory.PACKET)
       .withClassName(PLAYER_CONNECTION_CLASS)
-      .withMethodName("sendPacket").withMethodName("a")
+      .withMethodName("sendPacket")
+      .withMethodName("a")
+      .withMethodName("b")
       .withParameterTypes(PACKET_CLASS));
   
   public static final TypeCache.BaseCache<Method> SET_CUSTOM_NAME_OLD_METHOD = new TypeCache.BaseCache.MethodLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
@@ -705,6 +750,7 @@ public final class CacheRegistry {
       .withMethodName("ai")
       .withMethodName("al")
       .withMethodName("aj")
+      .withMethodName("an")
       .withExpectResult(DATA_WATCHER_CLASS));
   
   public static final TypeCache.BaseCache<Method> GET_BUKKIT_ENTITY_METHOD = new TypeCache.BaseCache.MethodLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
@@ -776,17 +822,21 @@ public final class CacheRegistry {
           .withMethodName("c")
       .withClassName(DATA_WATCHER_CLASS));
 
+  public static final TypeCache.BaseCache<Method> CREATE_DEFAULT_CLIENT_INFORMATION = new TypeCache.BaseCache.MethodLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.SERVER_LEVEL)
+      .withExpectResult(CLIENT_INFORMATION_CLASS)
+      .withClassName(CLIENT_INFORMATION_CLASS));
+
   public static final TypeCache.BaseCache<Field> PLAYER_CONNECTION_FIELD = new TypeCache.BaseCache.FieldLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
       .withCategory(CacheCategory.SERVER_LEVEL)
       .withClassName(ENTITY_PLAYER_CLASS)
-      .withFieldName((Utils.BUKKIT_VERSION > 16) ? "b" : "playerConnection"));
-  
+      .withExpectResult(PLAYER_CONNECTION_CLASS));
+
   public static final TypeCache.BaseCache<Field> NETWORK_MANAGER_FIELD = new TypeCache.BaseCache.FieldLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
       .withCategory(CacheCategory.PACKET)
       .withClassName(PLAYER_CONNECTION_CLASS)
-      .withFieldName((Utils.BUKKIT_VERSION > 16) ? "a" : "networkManager")
       .withExpectResult(NETWORK_MANAGER_CLASS));
   
   public static final TypeCache.BaseCache<Field> CHANNEL_FIELD = new TypeCache.BaseCache.FieldLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
@@ -805,13 +855,18 @@ public final class CacheRegistry {
       
       .withClassName("CraftServer")
       .withFieldName("commandMap"));
-  
+
+  public static final TypeCache.BaseCache<Field> PACKET_PLAY_OUT_INFO_LIST = new TypeCache.BaseCache.FieldLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
+      .withCategory(CacheCategory.PACKET)
+      .withClassName(PACKET_PLAY_OUT_PLAYER_INFO_CLASS)
+      .withExpectResult(List.class));
+
   public static final TypeCache.BaseCache<Object> ADD_PLAYER_FIELD = (new TypeCache.BaseCache.FieldLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
       .withCategory(CacheCategory.PACKET)
       .withClassName("PacketPlayOutPlayerInfo$EnumPlayerInfoAction")
       .withClassName("ClientboundPlayerInfoUpdatePacket$a")
-      .withFieldName((Utils.BUKKIT_VERSION > 16) ? "a" : "ADD_PLAYER"))).asValueField();
+      .withFieldName(Utils.isVersionNew(17) ? "a" : "ADD_PLAYER"))).asValueField();
 
   public static final TypeCache.BaseCache<Object> UPDATE_LISTED_FIELD = (new TypeCache.BaseCache.FieldLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
 
@@ -819,13 +874,12 @@ public final class CacheRegistry {
       .withClassName("ClientboundPlayerInfoUpdatePacket$a")
       .withFieldName("d")).asValueField());
 
-
   public static final TypeCache.BaseCache<Object> REMOVE_PLAYER_FIELD = (new TypeCache.BaseCache.FieldLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
       .withCategory(CacheCategory.PACKET)
       .withClassName("PacketPlayOutPlayerInfo$EnumPlayerInfoAction")
       .withClassName("ClientboundPlayerInfoUpdatePacket$a")
-      .withFieldName((Utils.BUKKIT_VERSION > 16) ? "e" : "REMOVE_PLAYER"))).asValueField();
+      .withFieldName(Utils.isVersionNew(17) ? "e" : "REMOVE_PLAYER"))).asValueField();
   
   public static final TypeCache.BaseCache<Object> DATA_WATCHER_REGISTER_FIELD = (new TypeCache.BaseCache.FieldLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       

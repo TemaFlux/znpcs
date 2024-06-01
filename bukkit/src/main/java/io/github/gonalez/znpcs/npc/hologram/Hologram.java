@@ -13,13 +13,14 @@ import org.bukkit.Location;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Hologram {
   private static final String WHITESPACE = " ";
   
-  private static final boolean NEW_METHOD = (Utils.BUKKIT_VERSION > 12);
+  private static final boolean NEW_METHOD = Utils.isVersionNew(13);
   
   private static final double LINE_SPACING = Configuration.CONFIGURATION.getValue(ConfigurationValue.LINE_SPACING);
   
@@ -49,8 +50,11 @@ public class Hologram {
           updateLine(line, armorStand, null);
         }
         CacheRegistry.SET_INVISIBLE_METHOD.load().invoke(armorStand, true);
+
+        Method getEntityId = CacheRegistry.GET_ENTITY_ID.load();
+
         hologramLines.add(new HologramLine(line.replace(ConfigurationConstants.SPACE_SYMBOL, WHITESPACE),
-            armorStand, (Integer) CacheRegistry.GET_ENTITY_ID.load().invoke(armorStand)));
+            armorStand, getEntityId == null ? -1 : (Integer) getEntityId.invoke(armorStand)));
         y+=LINE_SPACING;
       }
       setLocation(location, 0);

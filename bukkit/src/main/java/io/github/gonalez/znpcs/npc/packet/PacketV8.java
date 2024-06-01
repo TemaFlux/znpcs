@@ -18,7 +18,7 @@ public class PacketV8 implements Packet {
   }
   
   public Object getPlayerPacket(Object nmsWorld, GameProfile gameProfile) throws ReflectiveOperationException {
-    Constructor<?> constructor = (Utils.BUKKIT_VERSION > 13) ? CacheRegistry.PLAYER_INTERACT_MANAGER_NEW_CONSTRUCTOR.load() : CacheRegistry.PLAYER_INTERACT_MANAGER_OLD_CONSTRUCTOR.load();
+    Constructor<?> constructor = Utils.isVersionNew(14) ? CacheRegistry.PLAYER_INTERACT_MANAGER_NEW_CONSTRUCTOR.load() : CacheRegistry.PLAYER_INTERACT_MANAGER_OLD_CONSTRUCTOR.load();
     return CacheRegistry.PLAYER_CONSTRUCTOR_OLD.load().newInstance(CacheRegistry.GET_SERVER_METHOD
           .load().invoke(Bukkit.getServer()), nmsWorld, gameProfile, constructor
 
@@ -26,7 +26,7 @@ public class PacketV8 implements Packet {
   }
   
   public Object getSpawnPacket(Object nmsEntity, boolean isPlayer) throws ReflectiveOperationException {
-    return isPlayer ? CacheRegistry.PACKET_PLAY_OUT_NAMED_ENTITY_CONSTRUCTOR.load().newInstance(nmsEntity)
+    return isPlayer && !Utils.isVersionNew(20.2) ? CacheRegistry.PACKET_PLAY_OUT_NAMED_ENTITY_CONSTRUCTOR.load().newInstance(nmsEntity)
         : CacheRegistry.PACKET_PLAY_OUT_SPAWN_ENTITY_CONSTRUCTOR.load().newInstance(nmsEntity);
   }
   

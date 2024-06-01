@@ -67,7 +67,13 @@ public enum NPCType {
     WARDEN(CacheRegistry.ENTITY_WARDEN, 1),
 
     AXOLOTL(CacheRegistry.ENTITY_AXOLOTL_CLASS, -1, "setVariant", "setAge"),
-    GOAT(CacheRegistry.ENTITY_GOAT_CLASS, -0.5, "setScreamingGoat", "setAge");
+    GOAT(CacheRegistry.ENTITY_GOAT_CLASS, -0.5, "setScreamingGoat", "setAge"),
+
+    ALLAY(CacheRegistry.ENTITY_ALLAY_CLASS, -0.5, "startDancing", "stopDancing"),
+    PIGLIN(CacheRegistry.ENTITY_PIGLIN_CLASS, -1),
+    FROG(CacheRegistry.ENTITY_FROG_CLASS, -0.5, "setAge"),
+    CAMEL(CacheRegistry.ENTITY_CAMEL_CLASS, -0.5, "setAge"),
+    HOGLIN(CacheRegistry.ENTITY_HOGLIN_CLASS, -1);
 
     /** A empty string. */
     private static final String EMPTY_STRING = "";
@@ -106,7 +112,7 @@ public enum NPCType {
         }
 
         try {
-            if (Utils.versionNewer(14)) {
+            if (Utils.isVersionNew(14)) {
                 nmsEntityType = ((Optional<?>) CacheRegistry.ENTITY_TYPES_A_METHOD.load().invoke(null, bukkitEntityType.getKey().getKey().toLowerCase())).get();
                 constructor = entityClass.getConstructor(CacheRegistry.ENTITY_TYPES_CLASS, CacheRegistry.WORLD_CLASS);
             } else {

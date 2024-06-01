@@ -4,36 +4,49 @@ import io.github.gonalez.znpcs.cache.CacheRegistry;
 import io.github.gonalez.znpcs.configuration.ConfigurationConstants;
 import io.github.gonalez.znpcs.user.ZUser;
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class Utils {
-  public static final int BUKKIT_VERSION;
-  
-  public static final long SECOND_INTERVAL_NANOS = 1000000000L;
+  public static final double BUKKIT_VERSION;
+
+  private static final Pattern PATTERN = Pattern.compile("(?i)v(\\d+)_(\\d+)_R(\\d+)");
   
   public static boolean PLACEHOLDER_SUPPORT = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
   
   static {
-    BUKKIT_VERSION = NumberUtils.toInt(getFormattedBukkitPackage());
+    BUKKIT_VERSION = getVersionAsDouble(Utils.getBukkitPackage());
+  }
+
+  private static double getVersionAsDouble(String input) {
+    Matcher matcher = PATTERN.matcher(input);
+
+    if (matcher.find()) {
+      // String majorVersion = matcher.group(1);
+      String minorVersion = matcher.group(2);
+      String revisionNumber = matcher.group(3);
+      try {
+        return Double.parseDouble(minorVersion + "." + revisionNumber);
+      } catch (NumberFormatException e) {
+        return 0.0;
+      }
+    }
+
+    return 0.0;
   }
   
-  public static boolean versionNewer(int version) {
+  public static boolean isVersionNew(double version) {
     return (BUKKIT_VERSION >= version);
   }
   
   public static String getBukkitPackage() {
     return Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-  }
-  
-  public static String getFormattedBukkitPackage() {
-    String version = getBukkitPackage().replace("v", "").replace("R", "");
-    return version.substring(2, version.length() - 2);
   }
   
   public static String toColor(String string) {

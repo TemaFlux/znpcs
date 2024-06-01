@@ -11,7 +11,7 @@ public final class PacketFactory {
   
   public static final Packet PACKET_FOR_CURRENT_VERSION = findPacketForVersion(Utils.BUKKIT_VERSION);
   
-  public static Packet findPacketForVersion(int version) {
+  public static Packet findPacketForVersion(double version) {
     return ALL.stream()
       .filter(packet -> (version >= packet.version()))
       .max(Comparator.comparing(Packet::version))

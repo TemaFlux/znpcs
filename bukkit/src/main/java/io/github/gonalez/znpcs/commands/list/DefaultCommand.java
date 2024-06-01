@@ -30,6 +30,7 @@ import io.github.gonalez.znpcs.npc.conversation.ConversationModel;
 import io.github.gonalez.znpcs.skin.SkinFetcherResult;
 import io.github.gonalez.znpcs.user.ZUser;
 import io.github.gonalez.znpcs.utility.PlaceholderUtils;
+import io.github.gonalez.znpcs.utility.Utils;
 import io.github.gonalez.znpcs.utility.location.ZLocation;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -83,10 +84,10 @@ public class DefaultCommand extends Command {
     sender.sendMessage(toColor("&6https://www.spigotmc.org/resources/znpcs.80940"));
     Objects.requireNonNull(sender);
     getCommands().forEach(commandInformation -> CommandSenderUtil.sendMessage(sender, commandInformation));
-    sender.sendMessage(ChatColor.DARK_GRAY + "Hover over the commands to see help for the command.");
+    sender.sendMessage(Utils.toColor("&7Explore commands by hovering over them for helpful tips. Require further assistance? Join our Discord community: &bhttps://discord.com/invite/RhNMH4T"));
     sender.sendMessage(toColor("&6&m------------------------------------------"));
   }
-  
+
   @CommandInformation(arguments = {"id", "type", "name"}, name = "create", permission = "znpcs.cmd.create", help = {" &f&l* &e/znpcs create <npc_id> PLAYER Qentin"})
   public void createNPC(CommandSender sender, ImmutableList<String> args) {
     if (args.size() < 3) {
@@ -185,12 +186,11 @@ public class DefaultCommand extends Command {
       } 
     } 
   }
-  
   @CommandInformation(arguments = {"id", "skin"},
       name = "skin", permission = "znpcs.cmd.skin",
       help = {
       " &f&l* &e/znpcs skin <npc_id> Notch",
-      " &f&l* &e/znpcs skin <npc_id> %someplugin_balance_top_1% 60",
+      " &f&l* &e/znpcs skin <npc_id> %someplugin_balance_top_1% refreshSkinDuration",
       "",
       "&7If &erefreshSkinDuration &7is present in the command arguments",
       "&7the skin will be 'refreshed' periodically every that duration, ",
@@ -216,6 +216,12 @@ public class DefaultCommand extends Command {
     foundNPC.getNpcPojo().setSkinName(skin);
 
     Configuration.MESSAGES.sendMessage(sender, ConfigurationValue.FETCHING_SKIN, skin);
+
+    if (!Utils.PLACEHOLDER_SUPPORT) {
+      sender.sendMessage(org.bukkit.ChatColor.RED + "You need PlaceholderAPI to run this command.");
+      return;
+    }
+
     DO_APPLY_SKIN.apply(sender, foundNPC, PlaceholderUtils.formatPlaceholders(skin), new SkinFetcherResult() {
       @Override
       public void onDone(String[] paramArrayOfString, Throwable paramThrowable) {
