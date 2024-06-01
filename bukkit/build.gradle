@@ -12,3 +12,13 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.16.2-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.9.2")
 }
+
+jar {
+    archivesBaseName = 'ServersNPC'
+    archiveVersion = ''
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from (configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }) {
+        exclude 'META-INF/**', 'LICENSE'
+    }
+}
