@@ -183,13 +183,14 @@ public interface TypeCache {
           throw new NullPointerException();
         }
       } catch (Throwable throwable) {
-        if (throwable instanceof IllegalStateException) {
+        /* if (throwable instanceof IllegalStateException) {
           log("No cache found for: " + cacheBuilder.className);
         }
         log("No cache found for: " + cacheBuilder.className + " : " + cacheBuilder.methods.toString());
         // skip class...
-        log("Skipping cache for " + cacheBuilder.className);
+        log("Skipping cache for " + cacheBuilder.className); */
       }
+
       loaded = true;
       return cached;
     }
