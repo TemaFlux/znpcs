@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Hologram {
@@ -41,19 +42,22 @@ public class Hologram {
       hologramLines.clear();
       double y = 0;
       final Location location = npc.getLocation();
-      for (String line : npc.getNpcPojo().getHologramLines()) {
-        boolean visible = !line.equalsIgnoreCase("%space%"); // determine if the line should be seen
+      final List<String> lines = new ArrayList<>(npc.getNpcPojo().getHologramLines());
+      Collections.reverse(lines);
+
+      for (String line : lines) {
+        boolean visible = line != null && !line.trim().isEmpty() && !line.equalsIgnoreCase("%space%"); // determine if the line should be seen
         Object armorStand = CacheRegistry.ENTITY_CONSTRUCTOR.load().newInstance(CacheRegistry.GET_HANDLE_WORLD_METHOD.load().invoke(location.getWorld()),
             location.getX(), (location.getY() - 0.15) + (y), location.getZ());
+
         if (visible) {
           CacheRegistry.SET_CUSTOM_NAME_VISIBLE_METHOD.load().invoke(armorStand, true); // entity name is not visible by default
           updateLine(line, armorStand, null);
         }
+
         CacheRegistry.SET_INVISIBLE_METHOD.load().invoke(armorStand, true);
-
         Method getEntityId = CacheRegistry.GET_ENTITY_ID.load();
-
-        hologramLines.add(new HologramLine(line.replace(ConfigurationConstants.SPACE_SYMBOL, WHITESPACE),
+        hologramLines.add(new HologramLine(line == null ? null : line.replace(ConfigurationConstants.SPACE_SYMBOL, WHITESPACE),
             armorStand, getEntityId == null ? -1 : (Integer) getEntityId.invoke(armorStand)));
         y+=LINE_SPACING;
       }
