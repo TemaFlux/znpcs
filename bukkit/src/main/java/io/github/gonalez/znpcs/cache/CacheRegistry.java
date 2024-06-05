@@ -329,6 +329,11 @@ public final class CacheRegistry {
       .withAdditionalData("monster")
       .withClassName("EntityIllagerIllusioner"))).load();
 
+  public static final Class<?> ENTITY_VEX_CLASS = (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
+      .withCategory(CacheCategory.ENTITY)
+      .withAdditionalData("monster")
+      .withClassName("EntityVex"))).load();
+
   public static final Class<?> ENTITY_TYPES_CLASS = (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
       .withCategory(CacheCategory.ENTITY)

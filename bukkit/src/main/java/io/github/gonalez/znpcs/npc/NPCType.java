@@ -59,6 +59,7 @@ public enum NPCType {
     EVOKER(CacheRegistry.ENTITY_EVOKER_CLASS, 0),
     PILLAGER(CacheRegistry.ENTITY_PILLAGER_CLASS, 0),
     ILLUSIONER(CacheRegistry.ENTITY_ILLUSIONER_CLASS, 0),
+    VEX(CacheRegistry.ENTITY_VEX_CLASS, 0),
 
     // v1.17+
     BEE(CacheRegistry.ENTITY_BEE_CLASS, -1, "setAnger", "setHasNectar", "setHasStung"),
