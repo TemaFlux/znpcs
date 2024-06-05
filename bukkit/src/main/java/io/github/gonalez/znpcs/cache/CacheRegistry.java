@@ -460,7 +460,7 @@ public final class CacheRegistry {
   public static final Class<?> ENTITY_FROG_CLASS = new TypeCache.BaseCache.ClazzLoader(new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER)
       .withCategory(CacheCategory.ENTITY)
       .withAdditionalData("animal.frog")
-      .withClassName("Frog  ")).load();
+      .withClassName("Frog")).load();
 
   public static final Class<?> SCOREBOARD_CLASS = (new TypeCache.BaseCache.ClazzLoader((new TypeCache.CacheBuilder(CachePackage.MINECRAFT_SERVER))
       
